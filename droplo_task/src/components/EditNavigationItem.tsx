@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import toast from 'react-hot-toast';
 
 interface FormData {
   label: string;
@@ -23,6 +24,7 @@ const EditNavigationItem: React.FC<EditNavigationItemProps> = ({
 
   const onSubmit = (data: FormData) => {
     onUpdate(data);
+    toast.success("Element nawigacji został zaktualizowany!");
   };
 
   return (

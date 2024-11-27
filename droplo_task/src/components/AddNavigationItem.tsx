@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import toast from 'react-hot-toast';
 
 interface FormData {
   label: string;
@@ -15,7 +16,8 @@ const AddNavigationItem: React.FC<AddNavigationItemProps> = ({ onAdd }) => {
 
   const onSubmit = (data: FormData) => {
     onAdd(data);
-    reset(); // Reset the form fields after submission
+    toast.success("Element nawigacji został dodany!");
+    reset();
   };
 
   return (

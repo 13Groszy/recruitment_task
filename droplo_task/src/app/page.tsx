@@ -6,7 +6,7 @@ import AddNavigationItem from "@/components/AddNavigationItem";
 
 const initialItems = [];
 // { id: "1", label: "Home", url: "/" },
-  // { id: "2", label: "About", url: "/about" }
+// { id: "2", label: "About", url: "/about" }
 
 export default function Home() {
   const [items, setItems] = useState(initialItems);
@@ -23,7 +23,9 @@ export default function Home() {
   };
 
   const handleUpdateItem = (updatedItem) => {
-    setItems(items.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
+    setItems(
+      items.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+    );
     setEditingItemId(null);
   };
 
@@ -57,6 +59,13 @@ export default function Home() {
             onUpdate={handleUpdateItem}
             onCancel={handleCancelEdit}
           />
+          <button
+            onClick={() => setShowAddItem(true)}
+            className="mt-4 bg-purple-600 text-white p-2 rounded"
+          >
+            Dodaj pozycję menu
+          </button>
+          {showAddItem && <AddNavigationItem onAdd={handleAddItem} />}
         </>
       )}
     </main>
