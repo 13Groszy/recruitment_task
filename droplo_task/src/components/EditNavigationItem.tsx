@@ -28,14 +28,14 @@ const EditNavigationItem: React.FC<EditNavigationItemProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" aria-label="Edit Navigation Item">
       <div>
-        <label className="block">Nazwa</label>
-        <input {...register("label")} className="border rounded p-2" />
+        <label className="block" htmlFor="edit-label">Nazwa</label>
+        <input id="edit-label" {...register("label")} className="border rounded p-2" />
       </div>
       <div>
-        <label className="block">Link</label>
-        <input {...register("url")} className="border rounded p-2" />
+        <label className="block" htmlFor="edit-url">Link</label>
+        <input id="edit-url" {...register("url")} className="border rounded p-2" />
       </div>
       <div className="flex space-x-2">
         <button type="submit" className="bg-blue-500 text-white p-2 rounded">

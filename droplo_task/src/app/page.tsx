@@ -4,17 +4,74 @@ import React, { useState } from "react";
 import NavigationList from "@/components/NavigationList";
 import AddNavigationItem from "@/components/AddNavigationItem";
 
-const initialItems = [];
-// { id: "1", label: "Home", url: "/" },
-// { id: "2", label: "About", url: "/about" }
+const initialItems = [
+  {
+    id: "1",
+    label: "Home",
+    url: "/",
+    subItems: [],
+  },
+  {
+    id: "2",
+    label: "About",
+    url: "/about",
+    subItems: [
+      {
+        id: "2-1",
+        label: "Team",
+        url: "/about/team",
+        subItems: [],
+      },
+      {
+        id: "2-2",
+        label: "History",
+        url: "/about/history",
+        subItems: [],
+      },
+    ],
+  },
+  {
+    id: "3",
+    label: "Services",
+    url: "/services",
+    subItems: [
+      {
+        id: "3-1",
+        label: "Consulting",
+        url: "/services/consulting",
+        subItems: [],
+      },
+      {
+        id: "3-2",
+        label: "Development",
+        url: "/services/development",
+        subItems: [],
+      },
+    ],
+  },
+];
 
 export default function Home() {
   const [items, setItems] = useState(initialItems);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [showAddItem, setShowAddItem] = useState(false);
 
-  const handleAddItem = (newItem) => {
-    setItems([...items, { id: Date.now().toString(), ...newItem }]);
+  const handleAddItem = (newItem, parentId?: string) => {
+    if (parentId) {
+      setItems((prevItems) =>
+        prevItems.map((item) => {
+          if (item.id === parentId) {
+            return {
+              ...item,
+              subItems: [...item.subItems, { id: Date.now().toString(), ...newItem, subItems: [] }],
+            };
+          }
+          return item;
+        })
+      );
+    } else {
+      setItems([...items, { id: Date.now().toString(), ...newItem, subItems: [] }]);
+    }
     setShowAddItem(false);
   };
 

@@ -5,6 +5,7 @@ interface NavigationItem {
   id: string;
   label: string;
   url?: string;
+  subItems: NavigationItem[];
 }
 
 interface NavigationListProps {
@@ -17,7 +18,7 @@ interface NavigationListProps {
 
 const NavigationList: React.FC<NavigationListProps> = ({ items, onEdit, editingItemId, onUpdate, onCancel }) => {
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-2" role="navigation">
       {items.map((item) => (
         <ListItem
           key={item.id}
@@ -26,6 +27,7 @@ const NavigationList: React.FC<NavigationListProps> = ({ items, onEdit, editingI
           isEditing={editingItemId === item.id}
           onUpdate={onUpdate}
           onCancel={onCancel}
+          editingItemId={editingItemId}
         />
       ))}
     </ul>
@@ -38,7 +40,8 @@ const ListItem: React.FC<{
   isEditing: boolean;
   onUpdate: (updatedItem: NavigationItem) => void;
   onCancel: () => void;
-}> = ({ item, onEdit, isEditing, onUpdate, onCancel }) => {
+  editingItemId: string | null;
+}> = ({ item, onEdit, isEditing, onUpdate, onCancel, editingItemId }) => {
   return (
     <li className="flex flex-col p-2 border rounded">
       <div className="flex justify-between items-center">
@@ -54,6 +57,15 @@ const ListItem: React.FC<{
             onUpdate({ ...updatedItem, id: item.id });
             onCancel();
           }}
+          onCancel={onCancel}
+        />
+      )}
+      {item.subItems.length > 0 && (
+        <NavigationList
+          items={item.subItems}
+          onEdit={onEdit}
+          editingItemId={editingItemId}
+          onUpdate={onUpdate}
           onCancel={onCancel}
         />
       )}
