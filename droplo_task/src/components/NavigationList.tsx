@@ -1,5 +1,5 @@
 import React from "react";
-import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
+import EditNavigationItem from "./EditNavigationItem";
 
 interface NavigationItem {
   id: string;
@@ -10,39 +10,53 @@ interface NavigationItem {
 interface NavigationListProps {
   items: NavigationItem[];
   onEdit: (id: string) => void;
+  editingItemId: string | null;
+  onUpdate: (updatedItem: NavigationItem) => void;
+  onCancel: () => void;
 }
 
-const NavigationList: React.FC<NavigationListProps> = ({ items, onEdit }) => {
+const NavigationList: React.FC<NavigationListProps> = ({ items, onEdit, editingItemId, onUpdate, onCancel }) => {
   return (
-    <DndContext>
-      <ul className="space-y-2">
-        {items.map((item) => (
-          <DraggableItem key={item.id} item={item} onEdit={onEdit} />
-        ))}
-      </ul>
-    </DndContext>
+    <ul className="space-y-2">
+      {items.map((item) => (
+        <ListItem
+          key={item.id}
+          item={item}
+          onEdit={onEdit}
+          isEditing={editingItemId === item.id}
+          onUpdate={onUpdate}
+          onCancel={onCancel}
+        />
+      ))}
+    </ul>
   );
 };
 
-const DraggableItem: React.FC<{
+const ListItem: React.FC<{
   item: NavigationItem;
   onEdit: (id: string) => void;
-}> = ({ item, onEdit }) => {
-  const { attributes, listeners, setNodeRef } = useDraggable({
-    id: item.id,
-  });
-
+  isEditing: boolean;
+  onUpdate: (updatedItem: NavigationItem) => void;
+  onCancel: () => void;
+}> = ({ item, onEdit, isEditing, onUpdate, onCancel }) => {
   return (
-    <li
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      className="flex justify-between items-center p-2 border rounded"
-    >
-      <span>{item.label}</span>
-      <button onClick={() => onEdit(item.id)} className="text-blue-500">
-        Edit
-      </button>
+    <li className="flex flex-col p-2 border rounded">
+      <div className="flex justify-between items-center">
+        <span>{item.label}</span>
+        <button onClick={() => onEdit(item.id)} className="text-blue-500">
+          Edit
+        </button>
+      </div>
+      {isEditing && (
+        <EditNavigationItem
+          item={item}
+          onUpdate={(updatedItem) => {
+            onUpdate({ ...updatedItem, id: item.id });
+            onCancel();
+          }}
+          onCancel={onCancel}
+        />
+      )}
     </li>
   );
 };
