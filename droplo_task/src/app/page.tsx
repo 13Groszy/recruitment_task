@@ -51,6 +51,14 @@ const initialItems = [
   },
 ];
 
+// Define the NavigationItem type
+type NavigationItem = {
+  id: string;
+  label: string;
+  url: string;
+  subItems: NavigationItem[];
+};
+
 export default function Home() {
   const [items, setItems] = useState(initialItems);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -75,19 +83,63 @@ export default function Home() {
     setShowAddItem(false);
   };
 
-  const handleEditItem = (id) => {
+  const handleEditItem = (id: string) => {
     setEditingItemId(id);
   };
 
   const handleUpdateItem = (updatedItem) => {
-    setItems(
-      items.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+    setItems((prevItems) =>
+      prevItems.map((item) => {
+        if (item.id === updatedItem.id) {
+          return updatedItem;
+        }
+        if (item.subItems) {
+          return {
+            ...item,
+            subItems: item.subItems.map((subItem) =>
+              subItem.id === updatedItem.id ? updatedItem : subItem
+            ),
+          };
+        }
+        return item;
+      })
     );
     setEditingItemId(null);
   };
 
   const handleCancelEdit = () => {
     setEditingItemId(null);
+  };
+
+  const handleAddSubItem = (newItem, parentId: string) => {
+    setItems((prevItems) =>
+      prevItems.map((item) => {
+        if (item.id === parentId) {
+          return {
+            ...item,
+            subItems: [...item.subItems, { id: Date.now().toString(), ...newItem }],
+          };
+        }
+        return item;
+      })
+    );
+  };
+
+  const handleDeleteItem = (id: string, isSubItem: boolean = false, parentId?: string) => {
+    setItems((prevItems) => {
+      if (isSubItem && parentId) {
+        return prevItems.map(item => {
+          if (item.id === parentId) {
+            return {
+              ...item,
+              subItems: item.subItems.filter(subItem => subItem.id !== id),
+            };
+          }
+          return item;
+        });
+      }
+      return prevItems.filter(item => item.id !== id);
+    });
   };
 
   return (
@@ -115,6 +167,8 @@ export default function Home() {
             editingItemId={editingItemId}
             onUpdate={handleUpdateItem}
             onCancel={handleCancelEdit}
+            onAddSubItem={handleAddSubItem}
+            onDeleteItem={handleDeleteItem}
           />
           <button
             onClick={() => setShowAddItem(true)}
