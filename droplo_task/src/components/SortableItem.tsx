@@ -1,7 +1,9 @@
-import React from "react";
+import {useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import EditNavigationItem from "./EditNavigationItem";
+import AddNavigationItem from "./AddNavigationItem";
+import MoveIcon from "./MoveIcon";
 
 interface SortableItemProps {
   item: NavigationItem;
@@ -14,6 +16,8 @@ interface SortableItemProps {
   onDeleteItem: (id: string, isSubItem?: boolean, parentId?: string) => void;
   parentId?: string;
   isSubItem?: boolean;
+  isBeingDraggedOver?: boolean;
+  dragOverDirection?: "top" | "bottom" | "inside" | null;
 }
 
 export const SortableItem: React.FC<SortableItemProps> = ({
@@ -27,7 +31,10 @@ export const SortableItem: React.FC<SortableItemProps> = ({
   onDeleteItem,
   parentId,
   isSubItem = false,
+  isBeingDraggedOver,
+  dragOverDirection,
 }) => {
+    const [showAddSubItem, setShowAddSubItem] = useState(false);
   const {
     attributes,
     listeners,
@@ -41,39 +48,65 @@ export const SortableItem: React.FC<SortableItemProps> = ({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    position: "relative" as const,
+    width: "100%",
+    maxWidth: "100%",
+    transformOrigin: "0 0",
   };
 
   return (
-    <li
+    <div
       ref={setNodeRef}
       style={style}
-      className={`p-2 border rounded-lg bg-white ${
-        isDragging ? "shadow-lg" : ""
-      }`}
+      className={`p-3 border rounded-lg bg-white w-full ${
+        isDragging ? "shadow-lg z-50" : ""
+      } 
+  ${
+    isBeingDraggedOver && dragOverDirection === "inside"
+      ? "border-2 border-blue-500"
+      : ""
+  }`}
     >
-      <div className="flex items-center justify-between">
+      {isBeingDraggedOver && dragOverDirection === "top" && (
+        <div className="absolute top-0 left-0 right-0 h-1 -translate-y-1" />
+      )}
+      {isBeingDraggedOver && dragOverDirection === "bottom" && (
+        <div className="absolute bottom-0 left-0 right-0 h-1 translate-y-1" />
+      )}
+      <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <button
             {...attributes}
             {...listeners}
-            className="cursor-grab px-2 py-1 hover:bg-gray-100 rounded"
+            className="cursor-grab px-2 py-1 hover:bg-gray-100 rounded mt-1"
           >
-            ⋮⋮
+            <MoveIcon />
           </button>
-          <span>{item.label}</span>
+          <div className="flex flex-col">
+            <span className="font-medium">{item.label}</span>
+            {item.url && (
+              <span className="text-sm text-gray-500">{item.url}</span>
+            )}
+          </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex border rounded-xl">
+          <button
+            onClick={() => onDeleteItem(item.id, isSubItem, parentId)}
+            className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-50 rounded-l-xl"
+          >
+            Usuń
+          </button>
           <button
             onClick={() => onEdit(item.id)}
-            className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded"
+            className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-50 border-x"
           >
             Edytuj
           </button>
           <button
-            onClick={() => onDeleteItem(item.id, isSubItem, parentId)}
-            className="px-3 py-1 text-red-600 hover:bg-red-50 rounded"
+            onClick={() => setShowAddSubItem(true)}
+            className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-50 rounded-r-xl"
           >
-            Usuń
+            Dodaj pozycję menu
           </button>
         </div>
       </div>
@@ -89,8 +122,19 @@ export const SortableItem: React.FC<SortableItemProps> = ({
           />
         </div>
       )}
+      {showAddSubItem && (
+        <div className="mt-2">
+          <AddNavigationItem
+            onAdd={(newItem) => {
+              onAddSubItem(newItem, item.id);
+              setShowAddSubItem(false);
+            }}
+            parentId={item.id}
+          />
+        </div>
+      )}
       {item.subItems && item.subItems.length > 0 && (
-        <div className="ml-8 mt-2 border-l-2 pl-4">
+        <div className="ml-8 mt-6 pl-4 flex flex-col gap-2">
           {item.subItems.map((subItem) => (
             <SortableItem
               key={subItem.id}
@@ -108,6 +152,6 @@ export const SortableItem: React.FC<SortableItemProps> = ({
           ))}
         </div>
       )}
-    </li>
+    </div>
   );
 };

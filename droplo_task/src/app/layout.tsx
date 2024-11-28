@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className='antialiased'>
+      <body className="antialiased bg-[#d0d5dd2a]">
         <Toaster />
         {children}
       </body>

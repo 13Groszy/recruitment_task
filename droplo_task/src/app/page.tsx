@@ -7,44 +7,44 @@ import AddNavigationItem from "@/components/AddNavigationItem";
 const initialItems = [
   {
     id: "1",
-    label: "Home",
-    url: "/",
+    label: "Test",
+    url: "https://www.google.com",
     subItems: [],
   },
   {
     id: "2",
-    label: "About",
-    url: "/about",
+    label: "John",
+    url: "https://www.google.com",
     subItems: [
       {
         id: "2-1",
-        label: "Team",
-        url: "/about/team",
+        label: "Premiere",
+        url: "https://www.google.com",
         subItems: [],
       },
       {
         id: "2-2",
-        label: "History",
-        url: "/about/history",
+        label: "Ultra",
+        url: "https://www.google.com",
         subItems: [],
       },
     ],
   },
   {
     id: "3",
-    label: "Services",
-    url: "/services",
+    label: "Placeholder",
+    url: "https://www.google.com",
     subItems: [
       {
         id: "3-1",
         label: "Consulting",
-        url: "/services/consulting",
+        url: "https://www.google.com",
         subItems: [],
       },
       {
         id: "3-2",
         label: "Development",
-        url: "/services/development",
+        url: "https://www.google.com",
         subItems: [],
       },
     ],
@@ -120,42 +120,61 @@ export default function Home() {
     setEditingItemId(null);
   };
 
-  const handleAddSubItem = (newItem, parentId: string) => {
-    setItems((prevItems) =>
-      prevItems.map((item) => {
-        if (item.id === parentId) {
-          return {
-            ...item,
-            subItems: [
-              ...item.subItems,
-              { id: Date.now().toString(), ...newItem },
-            ],
-          };
-        }
-        return item;
-      })
-    );
+const handleAddSubItem = (newItem, parentId: string) => {
+  const addSubItemRecursively = (items: NavigationItem[]): NavigationItem[] => {
+    return items.map((item) => {
+      if (item.id === parentId) {
+        return {
+          ...item,
+          subItems: [
+            ...item.subItems,
+            { id: Date.now().toString(), ...newItem, subItems: [] },
+          ],
+        };
+      }
+      if (item.subItems && item.subItems.length > 0) {
+        return {
+          ...item,
+          subItems: addSubItemRecursively(item.subItems),
+        };
+      }
+      return item;
+    });
   };
+
+  setItems(addSubItemRecursively(items));
+};
 
   const handleDeleteItem = (
     id: string,
     isSubItem: boolean = false,
     parentId?: string
   ) => {
-    setItems((prevItems) => {
-      if (isSubItem && parentId) {
-        return prevItems.map((item) => {
-          if (item.id === parentId) {
-            return {
-              ...item,
-              subItems: item.subItems.filter((subItem) => subItem.id !== id),
-            };
-          }
-          return item;
-        });
-      }
-      return prevItems.filter((item) => item.id !== id);
-    });
+    const deleteItemRecursively = (
+      items: NavigationItem[]
+    ): NavigationItem[] => {
+      return items.reduce((acc: NavigationItem[], item) => {
+        if (item.id === id) {
+          return acc;
+        }
+
+        const newItem = { ...item };
+        if (item.subItems && item.subItems.length > 0) {
+          newItem.subItems = deleteItemRecursively(item.subItems);
+        }
+
+        if (item.id === parentId) {
+          newItem.subItems = item.subItems.filter(
+            (subItem) => subItem.id !== id
+          );
+        }
+
+        acc.push(newItem);
+        return acc;
+      }, []);
+    };
+
+    setItems(deleteItemRecursively(items));
   };
 
   return (
@@ -189,7 +208,7 @@ export default function Home() {
           />
           <button
             onClick={() => setShowAddItem(true)}
-            className="mt-4 bg-purple-600 text-white p-2 rounded"
+            className="mt-4 px-4 py-2 text-gray-700 font-medium bg-white hover:bg-gray-50 border rounded-xl"
           >
             Dodaj pozycję menu
           </button>
