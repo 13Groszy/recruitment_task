@@ -1,4 +1,5 @@
 import React from "react";
+import { useDraggable } from '@dnd-kit/core';
 import EditNavigationItem from "./EditNavigationItem";
 
 interface NavigationItem {
@@ -42,13 +43,25 @@ const ListItem: React.FC<{
   onCancel: () => void;
   editingItemId: string | null;
 }> = ({ item, onEdit, isEditing, onUpdate, onCancel, editingItemId }) => {
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: item.id,
+  });
+
   return (
-    <li className="flex flex-col p-2 border rounded">
-      <div className="flex justify-between items-center">
-        <span>{item.label}</span>
-        <button onClick={() => onEdit(item.id)} className="text-blue-500">
-          Edit
-        </button>
+    <li ref={setNodeRef} className="flex flex-col p-2 border rounded">
+      <div className="flex items-center">
+        <div {...attributes} {...listeners} className="cursor-grab p-2">
+          <span className="drag_icon">+</span>
+        </div>
+        <div className="flex justify-between items-center flex-grow">
+          <div className="flex flex-col">
+            <span className="font-bold">{item.label}</span>
+            <span>{item.url}</span>
+          </div>
+          <button onClick={() => onEdit(item.id)} className="text-blue-500">
+            Edit
+          </button>
+        </div>
       </div>
       {isEditing && (
         <EditNavigationItem
