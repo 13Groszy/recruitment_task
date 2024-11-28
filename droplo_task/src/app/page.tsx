@@ -51,7 +51,6 @@ const initialItems = [
   },
 ];
 
-// Define the NavigationItem type
 type NavigationItem = {
   id: string;
   label: string;
@@ -71,20 +70,30 @@ export default function Home() {
           if (item.id === parentId) {
             return {
               ...item,
-              subItems: [...item.subItems, { id: Date.now().toString(), ...newItem, subItems: [] }],
+              subItems: [
+                ...item.subItems,
+                { id: Date.now().toString(), ...newItem, subItems: [] },
+              ],
             };
           }
           return item;
         })
       );
     } else {
-      setItems([...items, { id: Date.now().toString(), ...newItem, subItems: [] }]);
+      setItems([
+        ...items,
+        { id: Date.now().toString(), ...newItem, subItems: [] },
+      ]);
     }
     setShowAddItem(false);
   };
 
   const handleEditItem = (id: string) => {
     setEditingItemId(id);
+  };
+
+  const handleReorder = (newItems: NavigationItem[]) => {
+    setItems(newItems);
   };
 
   const handleUpdateItem = (updatedItem) => {
@@ -117,7 +126,10 @@ export default function Home() {
         if (item.id === parentId) {
           return {
             ...item,
-            subItems: [...item.subItems, { id: Date.now().toString(), ...newItem }],
+            subItems: [
+              ...item.subItems,
+              { id: Date.now().toString(), ...newItem },
+            ],
           };
         }
         return item;
@@ -125,20 +137,24 @@ export default function Home() {
     );
   };
 
-  const handleDeleteItem = (id: string, isSubItem: boolean = false, parentId?: string) => {
+  const handleDeleteItem = (
+    id: string,
+    isSubItem: boolean = false,
+    parentId?: string
+  ) => {
     setItems((prevItems) => {
       if (isSubItem && parentId) {
-        return prevItems.map(item => {
+        return prevItems.map((item) => {
           if (item.id === parentId) {
             return {
               ...item,
-              subItems: item.subItems.filter(subItem => subItem.id !== id),
+              subItems: item.subItems.filter((subItem) => subItem.id !== id),
             };
           }
           return item;
         });
       }
-      return prevItems.filter(item => item.id !== id);
+      return prevItems.filter((item) => item.id !== id);
     });
   };
 
@@ -169,6 +185,7 @@ export default function Home() {
             onCancel={handleCancelEdit}
             onAddSubItem={handleAddSubItem}
             onDeleteItem={handleDeleteItem}
+            onReorder={handleReorder}
           />
           <button
             onClick={() => setShowAddItem(true)}
