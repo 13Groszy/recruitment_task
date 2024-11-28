@@ -134,7 +134,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({
         </div>
       )}
       {item.subItems && item.subItems.length > 0 && (
-        <div className="ml-8 mt-6 pl-4 flex flex-col gap-2">
+        <div className="ml-8 mt-4 pl-4 flex flex-col gap-2">
           {item.subItems.map((subItem) => (
             <SortableItem
               key={subItem.id}

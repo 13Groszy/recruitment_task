@@ -178,7 +178,7 @@ const handleAddSubItem = (newItem, parentId: string) => {
   };
 
   return (
-    <main className="p-4">
+    <main className="p-4 w-full max-w-screen-lg mx-auto">
       <h1 className="text-2xl mb-4">Navigation</h1>
       {items.length === 0 ? (
         <>
